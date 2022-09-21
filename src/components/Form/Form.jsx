@@ -1,10 +1,15 @@
 import PropTypes from 'prop-types';
 import {Container, Header,FormContainer, LabelContainer, UserInput, StyledBtn } from './Form.styled';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/reducer';
 
-const Form = ({addNewContact,onNotValid }) => {
+const Form = ({onNotValid }) => {
     const [name, setName] = useState('');
     const [tel, setTel] = useState('');
+
+    const contacts = useSelector(state => state.contacts);
+    const dispatch = useDispatch();
  
 
 
@@ -13,16 +18,27 @@ const Form = ({addNewContact,onNotValid }) => {
         name === 'name' ? setName(value) : setTel(value);
     }  
 
-    const formValidation = ( event, callback, showMessage)=> {
+  
+    const formValidation = ( event, showMessage)=> {
         event.preventDefault();
-        if (!name || !tel) {
-            return showMessage('Please fill all filds');
+        const userName = name;
+        const userTel = tel;
+        if (!userName || !userTel) {
+            return showMessage('Please fill all fields');
         }
 
-        const isExist = callback({ name, tel });
-
-        if (!isExist) reset();
+        const newContact = { userName, userTel };
+         const isExist = Object.keys(newContact).find(key => {
+            const subString = newContact[key].toLocaleUpperCase();
+            const contact = contacts.find(el => el[key].toLocaleUpperCase().includes(subString));
+            if (contact) return !showMessage(`${contact[key]} is already in contacts`);
+            else return false
+         })
         
+        if (isExist) return true;
+        dispatch(addContact(newContact));
+
+        reset();
     }
 
     const reset = ()=> {
@@ -30,13 +46,11 @@ const Form = ({addNewContact,onNotValid }) => {
         setTel('');
     }
 
-        // const { name, tel } = this.state;
-        // const { addNewContact, onNotValid } = this.props;
         return (
             <>
                 <Container>
             <Header>Phonebook</Header>
-            <FormContainer onSubmit={(event) => {formValidation(event, addNewContact, onNotValid)}}>
+            <FormContainer onSubmit={(event) => {formValidation(event, onNotValid)}}>
                 <LabelContainer >
                     Name
                     <UserInput
@@ -68,7 +82,6 @@ const Form = ({addNewContact,onNotValid }) => {
 }
     
     Form.propTypes = {
-        addNewContact: PropTypes.func.isRequired,
         onNotValid: PropTypes.func.isRequired,
     };
 export default Form;
