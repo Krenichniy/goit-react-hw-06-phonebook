@@ -5,6 +5,7 @@ import { Container } from '../Form/Form.styled';
 import { StyledItem, StyledName, StyledNumber, StyledBtn } from './Contacts.styled';
 import { removeContact } from 'redux/reducer';
 import { useCallback } from 'react';
+import styled from 'styled-components';
 
 const ContactsList = () => {
     const contacts = useSelector(getFiltredList);
@@ -15,19 +16,18 @@ const ContactsList = () => {
     }, [dispatch])
     return (
             <Container>
-        <ul>
+        <List>
              {contacts.map((el) => (
                  <StyledItem key={el.id}>
                      <StyledName>{el.name}</StyledName>:    
                      <StyledNumber>{el.tel}</StyledNumber>
                      <StyledBtn onClick={()=> onRemoveContact(el.id)}>Delete contact</StyledBtn>
                      </StyledItem>))}
-                </ul>
+                </List>
             </Container>
     )
 }
-
-
-
-
+const List = styled.div`
+         padding:0;
+`
 export default ContactsList;
